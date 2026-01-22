@@ -167,40 +167,39 @@ class _FilesListDialogState extends State<FilesListDialog> {
     final ext = fileName.split('.').last.toLowerCase();
     
     // Images - specific icons for each type
-    if (ext == 'png') return Icons.image;
-    if (ext == 'jpg' || ext == 'jpeg') return Icons.image;
-    if (ext == 'gif') return Icons.gif;
-    if (ext == 'svg') return Icons.image;
+    if (ext == 'png' || ext == 'jpg' || ext == 'jpeg') return Icons.image;
+    if (ext == 'gif') return Icons.gif_box;
+    if (ext == 'svg') return Icons.image_outlined;
     if (ext == 'webp') return Icons.image;
     
     // Documents - specific icons
     if (ext == 'pdf') return Icons.picture_as_pdf;
     if (ext == 'docx' || ext == 'doc') return Icons.description;
     if (ext == 'xlsx' || ext == 'xls') return Icons.table_chart;
-    if (ext == 'csv') return Icons.table_chart;
+    if (ext == 'csv') return Icons.table_rows;
     if (ext == 'pptx' || ext == 'ppt') return Icons.slideshow;
     
     // Text files
     if (ext == 'txt') return Icons.text_snippet;
-    if (ext == 'json') return Icons.code;
-    if (ext == 'xml') return Icons.code;
     if (ext == 'md') return Icons.article;
     
-    // Code files
-    if (['html', 'css', 'js', 'ts', 'py', 'java', 'cpp', 'c', 'dart'].contains(ext)) {
-      return Icons.code;
-    }
+    // Code files - specific icons for different languages
+    if (ext == 'json') return Icons.data_object;
+    if (ext == 'xml') return Icons.code;
+    if (ext == 'html') return Icons.html;
+    if (ext == 'css') return Icons.css;
+    if (ext == 'js' || ext == 'ts') return Icons.javascript;
+    if (ext == 'py') return Icons.code;
+    if (ext == 'java') return Icons.code;
+    if (ext == 'cpp' || ext == 'c') return Icons.code;
+    if (ext == 'dart') return Icons.code;
+    if (ext == 'go' || ext == 'rs' || ext == 'php' || ext == 'rb' || ext == 'swift' || ext == 'kt') return Icons.code;
     
     // Audio files
-    if (ext == 'mp3') return Icons.audio_file;
-    if (ext == 'wav') return Icons.audio_file;
-    if (ext == 'flac') return Icons.audio_file;
-    if (ext == 'aac') return Icons.audio_file;
+    if (ext == 'mp3' || ext == 'wav' || ext == 'flac' || ext == 'aac') return Icons.audio_file;
     
     // Archives
-    if (ext == 'zip') return Icons.folder_zip;
-    if (ext == 'rar') return Icons.folder_zip;
-    if (ext == '7z') return Icons.folder_zip;
+    if (ext == 'zip' || ext == 'rar' || ext == '7z') return Icons.folder_zip;
     
     return Icons.insert_drive_file;
   }

@@ -18,6 +18,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _userScrolledUp = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void dispose() {
@@ -34,22 +35,27 @@ class _ChatScreenState extends State<ChatScreen> {
         final maxScroll = _scrollController.position.maxScrollExtent;
         final currentScroll = _scrollController.position.pixels;
         // If user is more than 100 pixels from bottom, they've scrolled up
-        _userScrolledUp = (maxScroll - currentScroll) > 100;
+        setState(() {
+          _userScrolledUp = (maxScroll - currentScroll) > 100;
+        });
       }
     });
   }
 
   void _scrollToBottom({bool force = false}) {
-    if (_scrollController.hasClients && (force || !_userScrolledUp)) {
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+    if (_scrollController.hasClients) {
+      // Only auto-scroll if user hasn't scrolled up or if forced
+      if (force || !_userScrolledUp) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
     }
   }
 
@@ -57,169 +63,164 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chat = context.watch<ChatController>();
 
-    // Auto-scroll when new messages arrive (but not if user scrolled up)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (chat.messages.isNotEmpty) {
-        // Force scroll on new message, but respect user scroll during streaming
-        final forceScroll = !chat.isStreaming;
-        _scrollToBottom(force: forceScroll);
-      }
-    });
+    // Auto-scroll when streaming new content
+    if (chat.isStreaming && chat.messages.isNotEmpty) {
+      _scrollToBottom(force: false);
+    }
 
     return Scaffold(
-      body: Row(
-        children: [
-          const SlidingSidebar(),
-          Expanded(
-            child: chat.messages.isEmpty && !chat.loading
-                ? LandingPage(onSend: (prompt, {files}) => chat.sendPrompt(prompt, files: files))
-                : Column(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        backgroundColor: const Color(0xFF1A1A1A),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Drawer header
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: chat.startNewConversation,
+                      icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                      label: const Text('New Chat', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+              ),
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Search chat history...',
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                    prefixIcon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.5)),
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+              const Divider(color: Colors.white24),
+              // Chat history list
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  children: [
+                    if (chat.currentThreadId != null)
+                      ListTile(
+                        leading: const Icon(Icons.chat_bubble_outline, color: Colors.white70),
+                        title: const Text(
+                          'Current Chat',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Text(
+                          chat.messages.isNotEmpty 
+                              ? () {
+                                  // Find first user message
+                                  final firstUserMsg = chat.messages.firstWhere(
+                                    (msg) => msg.isUser,
+                                    orElse: () => chat.messages.first,
+                                  );
+                                  final content = firstUserMsg.content;
+                                  return content.length > 50
+                                      ? '${content.substring(0, 50)}...'
+                                      : content;
+                                }()
+                              : 'Active conversation',
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                        selected: true,
+                        selectedTileColor: Colors.white.withValues(alpha: 0.1),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    // Add more chat history items here
+                  ],
+                ),
+              ),
+              // Settings/Files at bottom
+              const Divider(color: Colors.white24),
+              if (chat.currentThreadId != null)
+                ListTile(
+                  leading: const Icon(Icons.folder_outlined, color: Colors.white70),
+                  title: const Text('Files', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) => const FilesListDialog(),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+      body: chat.messages.isEmpty && !chat.loading
+          ? LandingPage(onSend: (prompt, {files}) => chat.sendPrompt(prompt, files: files))
+          : Column(
                     children: [
-                      // Header with Helium title
+                      // Header with menu button and title
                       Container(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            const Spacer(),
-                            Text(
-                              'Helium',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withValues(alpha: 0.9),
-                                letterSpacing: -0.5,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        child: SafeArea(
+                          bottom: false,
+                          child: Row(
+                            children: [
+                              // Menu button
+                              IconButton(
+                                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                                icon: const Icon(Icons.menu, color: Colors.white),
+                                tooltip: 'Menu',
                               ),
-                            ),
-                            const Spacer(),
-                            
-                            // Stop button (only show when streaming)
-                            if (chat.isStreaming)
-                              Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.red.withValues(alpha: 0.5),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () async {
-                                            await chat.stopCurrentAgent();
-                                          },
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 8,
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.stop,
-                                                  size: 16,
-                                                  color: Colors.red.withValues(alpha: 0.9),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  'Stop',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.red.withValues(alpha: 0.9),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                              // Title
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'Helium',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      letterSpacing: -0.5,
                                     ),
                                   ),
                                 ),
                               ),
-                            
-                            // New Chat button
-                            if (chat.currentThreadId != null && !chat.isStreaming)
-                              Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                child: TextButton.icon(
-                                  onPressed: chat.startNewConversation,
-                                  icon: const Icon(Icons.add, size: 18),
-                                  label: const Text('New Chat'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white.withValues(alpha: 0.7),
+                              // Action buttons
+                              if (chat.currentThreadId != null && !chat.isStreaming)
+                                IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => const FilesListDialog(),
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.folder_outlined,
+                                    color: Colors.white.withValues(alpha: 0.8),
                                   ),
+                                  tooltip: 'Files',
                                 ),
-                              ),
-                            
-                            // Files button (top-right) with folder icon
-                            if (chat.currentThreadId != null && !chat.isStreaming)
-                              Container(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) => const FilesListDialog(),
-                                            );
-                                          },
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 8,
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.folder,
-                                                  size: 16,
-                                                  color: Colors.white.withValues(alpha: 0.8),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  'Files',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.white.withValues(alpha: 0.8),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
+                              if (chat.isStreaming)
+                                const SizedBox(width: 48)
+                              else
+                                const SizedBox(width: 48), // Spacer to keep title centered
+                            ],
+                          ),
                         ),
                       ),
                       // Messages area
@@ -241,12 +242,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                       // Input area
-                      ChatInput(onSend: chat.sendPrompt),
+                      ChatInput(
+                        onSend: chat.sendPrompt,
+                        isStreaming: chat.isStreaming,
+                        onStop: () async {
+                          await chat.stopCurrentAgent();
+                        },
+                      ),
                     ],
                   ),
-          ),
-        ],
-      ),
     );
   }
 }

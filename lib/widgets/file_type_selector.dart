@@ -100,16 +100,42 @@ class FileTypeSelector extends StatelessWidget {
                   },
                 ),
                 
+                // PDF
+                _buildFileTypeOption(
+                  context,
+                  icon: Icons.picture_as_pdf,
+                  title: 'PDF Documents',
+                  subtitle: 'PDF files only',
+                  color: Colors.red,
+                  onTap: () {
+                    Navigator.pop(context);
+                    onTypeSelected(['pdf']);
+                  },
+                ),
+                
                 // Documents
                 _buildFileTypeOption(
                   context,
                   icon: Icons.description,
-                  title: 'Documents',
-                  subtitle: 'PDF, DOCX, XLSX, PPTX, CSV',
+                  title: 'Office Documents',
+                  subtitle: 'DOCX, XLSX, PPTX, CSV',
                   color: Colors.orange,
                   onTap: () {
                     Navigator.pop(context);
-                    onTypeSelected(['pdf', 'docx', 'xlsx', 'pptx', 'csv']);
+                    onTypeSelected(['docx', 'xlsx', 'pptx', 'csv']);
+                  },
+                ),
+                
+                // Code Files
+                _buildFileTypeOption(
+                  context,
+                  icon: Icons.code,
+                  title: 'Code Files',
+                  subtitle: 'JSON, XML, HTML, CSS, JS, PY',
+                  color: Colors.cyan,
+                  onTap: () {
+                    Navigator.pop(context);
+                    onTypeSelected(['json', 'xml', 'html', 'css', 'js', 'ts', 'py', 'java', 'cpp', 'c', 'dart']);
                   },
                 ),
                 
@@ -118,11 +144,11 @@ class FileTypeSelector extends StatelessWidget {
                   context,
                   icon: Icons.text_snippet,
                   title: 'Text Files',
-                  subtitle: 'TXT, JSON, XML, MD',
+                  subtitle: 'TXT, MD',
                   color: Colors.green,
                   onTap: () {
                     Navigator.pop(context);
-                    onTypeSelected(['txt', 'json', 'xml', 'md']);
+                    onTypeSelected(['txt', 'md']);
                   },
                 ),
                 

@@ -189,7 +189,7 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
       alignment: widget.message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75, // Max 75% of screen width
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         margin: EdgeInsets.only(
           top: 8,
@@ -197,35 +197,11 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
           left: widget.message.isUser ? 80 : 0,
           right: widget.message.isUser ? 0 : 80,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              decoration: BoxDecoration(
-                color: widget.message.isUser
-                    ? Colors.blue.withValues(alpha: 0.15)
-                    : Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: widget.message.isUser
-                      ? Colors.blue.withValues(alpha: 0.3)
-                      : Colors.white.withValues(alpha: 0.2),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
                   // Message content with typing cursor if streaming
                   widget.message.isUser || !TextFormatter.hasFormatting(widget.message.content)
                       ? Row(
@@ -426,9 +402,6 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                       ),
                     ),
                 ],
-              ),
-            ),
-          ),
         ),
       ),
     );

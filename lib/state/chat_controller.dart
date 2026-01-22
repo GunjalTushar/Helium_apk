@@ -331,13 +331,15 @@ class ChatController extends ChangeNotifier {
       // Clean markdown symbols before streaming
       final cleanedResponse = _cleanMarkdownSymbols(fullResponse);
       
-      // Calculate delay based on response length for smooth animation
-      // Shorter responses = slower typing, longer responses = faster typing
-      int delayMs = cleanedResponse.length > 500 ? 10 : 20;
-      if (cleanedResponse.length > 1000) delayMs = 5;
+      // Much faster typing animation - show chunks instead of single characters
+      const int chunkSize = 5; // Show 5 characters at a time
+      const int delayMs = 15; // Faster delay
       
-      for (int i = 0; i < cleanedResponse.length; i++) {
-        streamingContent += cleanedResponse[i];
+      for (int i = 0; i < cleanedResponse.length; i += chunkSize) {
+        final end = (i + chunkSize < cleanedResponse.length) 
+            ? i + chunkSize 
+            : cleanedResponse.length;
+        streamingContent += cleanedResponse.substring(i, end);
         
         messages[messageIndex] = ChatMessage.assistant(
           streamingContent,
@@ -350,7 +352,7 @@ class ChatController extends ChangeNotifier {
         notifyListeners();
         
         // Add small delay for typing effect
-        await Future.delayed(Duration(milliseconds: delayMs));
+        await Future.delayed(const Duration(milliseconds: delayMs));
       }
       
       // Add file count message if files were generated

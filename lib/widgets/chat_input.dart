@@ -7,7 +7,15 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ChatInput extends StatefulWidget {
   final Function(String, {List<PlatformFile>? files}) onSend;
-  const ChatInput({super.key, required this.onSend});
+  final bool isStreaming;
+  final VoidCallback? onStop;
+  
+  const ChatInput({
+    super.key, 
+    required this.onSend,
+    this.isStreaming = false,
+    this.onStop,
+  });
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -26,6 +34,8 @@ class _ChatInputState extends State<ChatInput> {
     'pdf', 'docx', 'xlsx', 'pptx', 'csv',
     // Text
     'txt', 'json', 'xml', 'md',
+    // Code files
+    'html', 'css', 'js', 'ts', 'py', 'java', 'cpp', 'c', 'dart', 'go', 'rs', 'php', 'rb', 'swift', 'kt',
     // Audio
     'mp3', 'wav', 'flac', 'aac',
     // Archives
@@ -63,35 +73,39 @@ class _ChatInputState extends State<ChatInput> {
     final ext = _getFileExtension(path);
     
     // Images - specific icons for each type
-    if (ext == 'png') return Icons.image;
-    if (ext == 'jpg' || ext == 'jpeg') return Icons.image;
-    if (ext == 'gif') return Icons.gif;
-    if (ext == 'svg') return Icons.image;
+    if (ext == 'png' || ext == 'jpg' || ext == 'jpeg') return Icons.image;
+    if (ext == 'gif') return Icons.gif_box;
+    if (ext == 'svg') return Icons.image_outlined;
     if (ext == 'webp') return Icons.image;
     
     // Documents - specific icons
     if (ext == 'pdf') return Icons.picture_as_pdf;
     if (ext == 'docx' || ext == 'doc') return Icons.description;
     if (ext == 'xlsx' || ext == 'xls') return Icons.table_chart;
-    if (ext == 'csv') return Icons.table_chart;
+    if (ext == 'csv') return Icons.table_rows;
     if (ext == 'pptx' || ext == 'ppt') return Icons.slideshow;
     
     // Text files
     if (ext == 'txt') return Icons.text_snippet;
-    if (ext == 'json') return Icons.code;
-    if (ext == 'xml') return Icons.code;
     if (ext == 'md') return Icons.article;
     
+    // Code files - specific icons for different languages
+    if (ext == 'json') return Icons.data_object;
+    if (ext == 'xml') return Icons.code;
+    if (ext == 'html') return Icons.html;
+    if (ext == 'css') return Icons.css;
+    if (ext == 'js' || ext == 'ts') return Icons.javascript;
+    if (ext == 'py') return Icons.code;
+    if (ext == 'java') return Icons.code;
+    if (ext == 'cpp' || ext == 'c') return Icons.code;
+    if (ext == 'dart') return Icons.code;
+    if (ext == 'go' || ext == 'rs' || ext == 'php' || ext == 'rb' || ext == 'swift' || ext == 'kt') return Icons.code;
+    
     // Audio files
-    if (ext == 'mp3') return Icons.audio_file;
-    if (ext == 'wav') return Icons.audio_file;
-    if (ext == 'flac') return Icons.audio_file;
-    if (ext == 'aac') return Icons.audio_file;
+    if (ext == 'mp3' || ext == 'wav' || ext == 'flac' || ext == 'aac') return Icons.audio_file;
     
     // Archives
-    if (ext == 'zip') return Icons.folder_zip;
-    if (ext == 'rar') return Icons.folder_zip;
-    if (ext == '7z') return Icons.folder_zip;
+    if (ext == 'zip' || ext == 'rar' || ext == '7z') return Icons.folder_zip;
     
     return Icons.insert_drive_file;
   }
@@ -333,7 +347,7 @@ class _ChatInputState extends State<ChatInput> {
                         child: TextField(
                           controller: controller,
                           focusNode: focusNode,
-                          maxLines: null,
+                          maxLines: 1,
                           textInputAction: TextInputAction.send,
                           onSubmitted: (_) => _handleSend(),
                           style: const TextStyle(
@@ -447,7 +461,9 @@ class _ChatInputState extends State<ChatInput> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: widget.isStreaming 
+                          ? Colors.red.withValues(alpha: 0.2)
+                          : Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
@@ -467,13 +483,13 @@ class _ChatInputState extends State<ChatInput> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: _handleSend,
+                        onTap: widget.isStreaming ? widget.onStop : _handleSend,
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.white.withValues(alpha: 0.2),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
-                            Icons.send_rounded,
-                            color: Colors.white,
+                            widget.isStreaming ? Icons.stop : Icons.send_rounded,
+                            color: widget.isStreaming ? Colors.red : Colors.white,
                             size: 18,
                           ),
                         ),
