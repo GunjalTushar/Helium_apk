@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:helium/config/app_theme.dart';
 import 'package:helium/models/chat_message.dart';
 import 'package:helium/utils/text_formatter.dart';
 import 'package:helium/widgets/file_preview_dialog.dart';
@@ -197,11 +198,30 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
           left: widget.message.isUser ? 80 : 0,
           right: widget.message.isUser ? 0 : 80,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: widget.message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Label: "you" or "helium"
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4, left: 20, right: 20),
+              child: Text(
+                widget.message.isUser ? 'you' : 'helium',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondaryCoolAsh,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+            // Message content
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   // Message content with typing cursor if streaming
                   widget.message.isUser || !TextFormatter.hasFormatting(widget.message.content)
                       ? Row(
@@ -213,7 +233,7 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                                 widget.message.content,
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: Colors.white.withValues(alpha: 0.95),
+                                  color: AppTheme.textPrimarySoftPearl,
                                   height: 1.6,
                                   letterSpacing: 0.2,
                                 ),
@@ -228,7 +248,7 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                                     width: 8,
                                     height: 20,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.8),
+                                      color: AppTheme.brandPrimaryLuminousTeal,
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -283,10 +303,10 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: AppTheme.surfaceDarkSlateTeal,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.2),
+                                  color: AppTheme.borderDivider.withValues(alpha: 0.4),
                                   width: 1,
                                 ),
                               ),
@@ -296,7 +316,7 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                                   Icon(
                                     _getFileIcon(fileName),
                                     size: 16,
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                    color: AppTheme.brandPrimaryLuminousTeal,
                                   ),
                                   const SizedBox(width: 8),
                                   ConstrainedBox(
@@ -306,7 +326,7 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.white.withValues(alpha: 0.9),
+                                        color: AppTheme.textPrimarySoftPearl,
                                       ),
                                     ),
                                   ),
@@ -314,7 +334,7 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                                   Icon(
                                     Icons.visibility,
                                     size: 14,
-                                    color: Colors.blue.withValues(alpha: 0.8),
+                                    color: AppTheme.brandSecondaryEucalyptus,
                                   ),
                                 ],
                               ),
@@ -402,6 +422,9 @@ class _MessageBubbleState extends State<MessageBubble> with SingleTickerProvider
                       ),
                     ),
                 ],
+              ),
+            ),
+          ],
         ),
       ),
     );

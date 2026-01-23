@@ -372,7 +372,7 @@ class _LandingPageState extends State<LandingPage> {
                                   height: 1.5,
                                 ),
                                 decoration: InputDecoration(
-                                  hintText: "Describe what to build…",
+                                  hintText: "Hello 👋",
                                   hintStyle: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.5),
                                     fontSize: 15,

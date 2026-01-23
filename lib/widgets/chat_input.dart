@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:helium/config/app_theme.dart';
 import 'package:helium/widgets/file_type_selector.dart';
 import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -250,10 +251,10 @@ class _ChatInputState extends State<ChatInput> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: AppTheme.surfaceDarkSlateTeal,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: AppTheme.borderDivider.withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
@@ -263,7 +264,7 @@ class _ChatInputState extends State<ChatInput> {
                             Icon(
                               _getFileIcon(fileName),
                               size: 16,
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: AppTheme.brandPrimaryLuminousTeal,
                             ),
                             const SizedBox(width: 6),
                             Column(
@@ -277,7 +278,7 @@ class _ChatInputState extends State<ChatInput> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.white.withValues(alpha: 0.9),
+                                      color: AppTheme.textPrimarySoftPearl,
                                     ),
                                   ),
                                 ),
@@ -285,7 +286,7 @@ class _ChatInputState extends State<ChatInput> {
                                   '$fileExt • $fileSizeStr',
                                   style: TextStyle(
                                     fontSize: 10,
-                                    color: Colors.white.withValues(alpha: 0.6),
+                                    color: AppTheme.textSecondaryCoolAsh,
                                   ),
                                 ),
                               ],
@@ -296,7 +297,7 @@ class _ChatInputState extends State<ChatInput> {
                               child: Icon(
                                 Icons.close,
                                 size: 16,
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: AppTheme.textSecondaryCoolAsh,
                               ),
                             ),
                           ],
@@ -318,18 +319,16 @@ class _ChatInputState extends State<ChatInput> {
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: AppTheme.surfaceDarkSlateTeal,
                         borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: AppTheme.borderDivider.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
-                            blurRadius: 30,
-                            offset: const Offset(0, 8),
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 15,
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 20,
                             offset: const Offset(0, 4),
                             spreadRadius: 0,
                           ),
@@ -350,15 +349,15 @@ class _ChatInputState extends State<ChatInput> {
                           maxLines: 1,
                           textInputAction: TextInputAction.send,
                           onSubmitted: (_) => _handleSend(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            color: Colors.white,
+                            color: AppTheme.textPrimarySoftPearl,
                             height: 1.5,
                           ),
                           decoration: InputDecoration(
-                            hintText: "Describe what to build…",
+                            hintText: "Ask Helium...",
                             hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: AppTheme.textDisabledHint,
                               fontSize: 15,
                             ),
                             border: InputBorder.none,
@@ -384,25 +383,19 @@ class _ChatInputState extends State<ChatInput> {
                     height: 48,
                     decoration: BoxDecoration(
                       color: selectedFiles.isNotEmpty
-                          ? Colors.blue.withValues(alpha: 0.2)
-                          : Colors.white.withValues(alpha: 0.1),
+                          ? AppTheme.brandPrimaryLuminousTeal.withValues(alpha: 0.15)
+                          : AppTheme.surfaceDarkSlateTeal,
                       borderRadius: BorderRadius.circular(30),
-                      border: selectedFiles.isNotEmpty
-                          ? Border.all(
-                              color: Colors.blue.withValues(alpha: 0.5),
-                              width: 1,
-                            )
-                          : null,
+                      border: Border.all(
+                        color: selectedFiles.isNotEmpty
+                            ? AppTheme.brandPrimaryLuminousTeal.withValues(alpha: 0.4)
+                            : AppTheme.borderDivider.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 30,
-                          offset: const Offset(0, 8),
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 15,
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 20,
                           offset: const Offset(0, 4),
                           spreadRadius: 0,
                         ),
@@ -413,15 +406,15 @@ class _ChatInputState extends State<ChatInput> {
                       child: InkWell(
                         onTap: _showFileTypeSelector,
                         borderRadius: BorderRadius.circular(30),
-                        splashColor: Colors.white.withValues(alpha: 0.2),
+                        splashColor: AppTheme.brandPrimaryLuminousTeal.withValues(alpha: 0.2),
                         child: Stack(
                           children: [
                             Center(
                               child: Icon(
                                 Icons.attach_file,
                                 color: selectedFiles.isNotEmpty
-                                    ? Colors.blue.withValues(alpha: 0.9)
-                                    : Colors.white.withValues(alpha: 0.8),
+                                    ? AppTheme.brandPrimaryLuminousTeal
+                                    : AppTheme.textSecondaryCoolAsh,
                                 size: 18,
                               ),
                             ),
@@ -431,14 +424,14 @@ class _ChatInputState extends State<ChatInput> {
                                 right: 4,
                                 child: Container(
                                   padding: const EdgeInsets.all(3),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.brandPrimaryLuminousTeal,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
                                     '${selectedFiles.length}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: AppTheme.backgroundDeepNightTeal,
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -462,19 +455,19 @@ class _ChatInputState extends State<ChatInput> {
                     height: 48,
                     decoration: BoxDecoration(
                       color: widget.isStreaming 
-                          ? Colors.red.withValues(alpha: 0.2)
-                          : Colors.white.withValues(alpha: 0.15),
+                          ? AppTheme.stateError.withValues(alpha: 0.15)
+                          : AppTheme.brandPrimaryLuminousTeal.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: widget.isStreaming
+                            ? AppTheme.stateError.withValues(alpha: 0.4)
+                            : AppTheme.brandPrimaryLuminousTeal.withValues(alpha: 0.4),
+                        width: 1,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 30,
-                          offset: const Offset(0, 8),
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 15,
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 20,
                           offset: const Offset(0, 4),
                           spreadRadius: 0,
                         ),
@@ -485,11 +478,13 @@ class _ChatInputState extends State<ChatInput> {
                       child: InkWell(
                         onTap: widget.isStreaming ? widget.onStop : _handleSend,
                         borderRadius: BorderRadius.circular(30),
-                        splashColor: Colors.white.withValues(alpha: 0.2),
+                        splashColor: widget.isStreaming
+                            ? AppTheme.stateError.withValues(alpha: 0.2)
+                            : AppTheme.brandPrimaryLuminousTeal.withValues(alpha: 0.2),
                         child: Center(
                           child: Icon(
                             widget.isStreaming ? Icons.stop : Icons.send_rounded,
-                            color: widget.isStreaming ? Colors.red : Colors.white,
+                            color: widget.isStreaming ? AppTheme.stateError : AppTheme.brandPrimaryLuminousTeal,
                             size: 18,
                           ),
                         ),

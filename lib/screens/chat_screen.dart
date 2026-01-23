@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:helium/config/app_theme.dart';
 import 'package:helium/state/chat_controller.dart';
 import 'package:helium/widgets/chat_input.dart';
 import 'package:helium/widgets/sidebar.dart';
@@ -71,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: Drawer(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: AppTheme.backgroundDeepNightTeal,
         child: SafeArea(
           child: Column(
             children: [
@@ -82,13 +83,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: AppTheme.textPrimarySoftPearl),
                     ),
                     const Spacer(),
                     TextButton.icon(
                       onPressed: chat.startNewConversation,
-                      icon: const Icon(Icons.add, size: 18, color: Colors.white),
-                      label: const Text('New Chat', style: TextStyle(color: Colors.white)),
+                      icon: Icon(Icons.add, size: 18, color: AppTheme.brandPrimaryLuminousTeal),
+                      label: Text('New Chat', style: TextStyle(color: AppTheme.brandPrimaryLuminousTeal)),
                     ),
                   ],
                 ),
@@ -97,13 +98,13 @@ class _ChatScreenState extends State<ChatScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextField(
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppTheme.textPrimarySoftPearl),
                   decoration: InputDecoration(
                     hintText: 'Search chat history...',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                    prefixIcon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.5)),
+                    hintStyle: TextStyle(color: AppTheme.textDisabledHint),
+                    prefixIcon: Icon(Icons.search, color: AppTheme.textSecondaryCoolAsh),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.1),
+                    fillColor: AppTheme.surfaceDarkSlateTeal,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -112,7 +113,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               ),
-              const Divider(color: Colors.white24),
+              Divider(color: AppTheme.borderDivider.withValues(alpha: 0.4)),
               // Chat history list
               Expanded(
                 child: ListView(
@@ -120,10 +121,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     if (chat.currentThreadId != null)
                       ListTile(
-                        leading: const Icon(Icons.chat_bubble_outline, color: Colors.white70),
-                        title: const Text(
+                        leading: Icon(Icons.chat_bubble_outline, color: AppTheme.brandSecondaryEucalyptus),
+                        title: Text(
                           'Current Chat',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: AppTheme.textPrimarySoftPearl),
                         ),
                         subtitle: Text(
                           chat.messages.isNotEmpty 
@@ -139,12 +140,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                       : content;
                                 }()
                               : 'Active conversation',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                          style: TextStyle(color: AppTheme.textSecondaryCoolAsh, fontSize: 12),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                         ),
                         selected: true,
-                        selectedTileColor: Colors.white.withValues(alpha: 0.1),
+                        selectedTileColor: AppTheme.surfaceElevated.withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     // Add more chat history items here
@@ -152,11 +153,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               // Settings/Files at bottom
-              const Divider(color: Colors.white24),
+              Divider(color: AppTheme.borderDivider.withValues(alpha: 0.4)),
               if (chat.currentThreadId != null)
                 ListTile(
-                  leading: const Icon(Icons.folder_outlined, color: Colors.white70),
-                  title: const Text('Files', style: TextStyle(color: Colors.white)),
+                  leading: Icon(Icons.folder_outlined, color: AppTheme.brandSecondaryEucalyptus),
+                  title: Text('Files', style: TextStyle(color: AppTheme.textPrimarySoftPearl)),
                   onTap: () {
                     Navigator.pop(context);
                     showDialog(
@@ -183,7 +184,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               // Menu button
                               IconButton(
                                 onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                                icon: const Icon(Icons.menu, color: Colors.white),
+                                icon: Icon(Icons.menu, color: AppTheme.textPrimarySoftPearl),
                                 tooltip: 'Menu',
                               ),
                               // Title
@@ -194,7 +195,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.white.withValues(alpha: 0.9),
+                                      color: AppTheme.textPrimarySoftPearl,
                                       letterSpacing: -0.5,
                                     ),
                                   ),
@@ -211,7 +212,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   },
                                   icon: Icon(
                                     Icons.folder_outlined,
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                    color: AppTheme.brandSecondaryEucalyptus,
                                   ),
                                   tooltip: 'Files',
                                 ),

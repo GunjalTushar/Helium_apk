@@ -24,7 +24,7 @@ android {
         applicationId = "com.example.helium"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21  // Android 5.0 (Lollipop) - supports most devices
+        minSdk = flutter.minSdkVersion  // Android 5.0 (Lollipop) - supports most devices
         targetSdk = 34  // Android 14
         versionCode = flutter.versionCode
         versionName = flutter.versionName

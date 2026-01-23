@@ -207,13 +207,35 @@ class ChatController extends ChangeNotifier {
     String fullResponse = ""; // Store complete response
 
     try {
-      // Collect the full response first
+      // Stream content in real-time as it arrives
       await for (final event in api.streamResponse(threadId, projectId)) {
         if (event['type'] == 'content') {
           final content = event['content'];
           if (content != null && content.toString().isNotEmpty) {
-            fullResponse += content.toString();
+            final newContent = content.toString();
+            fullResponse += newContent;
             hasContent = true;
+            
+            // Clean and display immediately
+            final cleanedResponse = _cleanMarkdownSymbols(fullResponse);
+            
+            // Animate character by character for smooth typing effect
+            for (int i = streamingContent.length; i < cleanedResponse.length; i++) {
+              streamingContent += cleanedResponse[i];
+              
+              messages[messageIndex] = ChatMessage.assistant(
+                streamingContent,
+                hasFiles: hasFiles,
+                hasCode: hasCode,
+                files: files,
+                codeBlocks: codeBlocks,
+              );
+              
+              notifyListeners();
+              
+              // Small delay for typing effect (5-20ms random for natural feel)
+              await Future.delayed(Duration(milliseconds: 5 + (i % 15)));
+            }
           }
         } else if (event['type'] == 'status') {
           currentStatus = event['status'] ?? 'running';
@@ -314,6 +336,29 @@ class ChatController extends ChangeNotifier {
         files = response['files'];
         codeBlocks = response['code_blocks'];
         hasContent = true;
+        
+        // Animate the polled response
+        status = "Typing...";
+        streamingContent = "";
+        
+        final cleanedResponse = _cleanMarkdownSymbols(fullResponse);
+        
+        for (int i = 0; i < cleanedResponse.length; i++) {
+          streamingContent += cleanedResponse[i];
+          
+          messages[messageIndex] = ChatMessage.assistant(
+            streamingContent,
+            hasFiles: hasFiles,
+            hasCode: hasCode,
+            files: files,
+            codeBlocks: codeBlocks,
+          );
+          
+          notifyListeners();
+          
+          // Small delay for typing effect
+          await Future.delayed(Duration(milliseconds: 5 + (i % 15)));
+        }
       } else {
         messages[messageIndex] = ChatMessage.assistant("❌ Error: No response received");
         notifyListeners();
@@ -322,45 +367,12 @@ class ChatController extends ChangeNotifier {
         return;
       }
     }
-
-    // Now animate the typing effect character by character
-    if (hasContent && fullResponse.isNotEmpty) {
-      status = "Typing...";
-      streamingContent = "";
-      
-      // Clean markdown symbols before streaming
-      final cleanedResponse = _cleanMarkdownSymbols(fullResponse);
-      
-      // Much faster typing animation - show chunks instead of single characters
-      const int chunkSize = 5; // Show 5 characters at a time
-      const int delayMs = 15; // Faster delay
-      
-      for (int i = 0; i < cleanedResponse.length; i += chunkSize) {
-        final end = (i + chunkSize < cleanedResponse.length) 
-            ? i + chunkSize 
-            : cleanedResponse.length;
-        streamingContent += cleanedResponse.substring(i, end);
-        
-        messages[messageIndex] = ChatMessage.assistant(
-          streamingContent,
-          hasFiles: hasFiles,
-          hasCode: hasCode,
-          files: files,
-          codeBlocks: codeBlocks,
-        );
-        
-        notifyListeners();
-        
-        // Add small delay for typing effect
-        await Future.delayed(const Duration(milliseconds: delayMs));
-      }
-      
-      // Add file count message if files were generated
-      if (hasFiles && files != null && files.isNotEmpty) {
-        final fileCount = files.length;
-        messages.add(ChatMessage.assistant("📁 Generated $fileCount file(s)"));
-        notifyListeners();
-      }
+    
+    // Add file count message if files were generated
+    if (hasFiles && files != null && files.isNotEmpty) {
+      final fileCount = files.length;
+      messages.add(ChatMessage.assistant("📁 Generated $fileCount file(s)"));
+      notifyListeners();
     }
 
     status = "Completed";
